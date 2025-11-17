@@ -1,0 +1,27 @@
+name: Deploy via Instance Refresh
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  refresh-asg:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Trigger Instance Refresh
+        run: |
+          echo "Rozpoczynam wymianę instancji w grupie: ${{ secrets.AWS_ASG_NAME }}..."
+          
+          aws autoscaling start-instance-refresh \
+            --auto-scaling-group-name ${{ secrets.AWS_ASG_NAME }} \
+            --preferences '{"InstanceWarmup": 300, "MinHealthyPercentage": 50}'
+            
+          echo "Proces rozpoczęty! AWS powoli wymieni stare serwery na nowe z aktualnym kodem."
