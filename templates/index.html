@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block head_extra %}
+<style>
+    .fact-of-day { background: white; border-radius: 20px; padding: 3rem; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); margin-bottom: 3rem; }
+    .fact-category { display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.5rem 1.5rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .fact-of-day h1 { font-size: 2.5rem; margin: 1.5rem 0; color: #333; }
+    .fact-of-day p { font-size: 1.1rem; line-height: 1.8; color: #666; margin-bottom: 1.5rem; }
+    .fact-card { background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin-bottom: 1.5rem; cursor: pointer; }
+    .fact-card:hover { transform: translateY(-5px); box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15); }
+    .fact-card h3 { color: #667eea; margin-bottom: 0.5rem; }
+    .comments-section { margin-top: 2rem; border-top: 2px solid #f0f0f0; padding-top: 2rem; }
+    .comment { background: #f9f9f9; padding: 1.5rem; border-radius: 10px; margin-bottom: 1rem; border-left: 4px solid #667eea; }
+</style>
+{% endblock %}
+
+{% block content %}
+    {% if fact_of_day %}
+    <div class="fact-of-day">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <span class="fact-category">{{ fact_of_day.kategoria or 'Ogólne' }}</span>
+            <button class="btn-primary" onclick="getRandomFact()">🔄 Inny Fakt</button>
+        </div>
+        <h1>{{ fact_of_day.tytul }}</h1>
+        <p>{{ fact_of_day.tresc }}</p>
+        {% if fact_of_day.zrodlo %}<p><strong>Źródło:</strong> <a href="{{ fact_of_day.zrodlo }}" target="_blank">Link</a></p>{% endif %}
+        <button class="btn-primary" style="margin-top: 2rem;" onclick="viewFactDetails({{ fact_of_day.id }})">Czytaj Więcej & Komentarze</button>
+    </div>
+    {% endif %}
+
+    <h2 style="color: white; margin-bottom: 2rem;">Ostatnie Ciekawostki</h2>
+    
+    {% for fact in recent_facts %}
+    <div class="fact-card" onclick="viewFactDetails({{ fact.id }})">
+        <span class="fact-category">{{ fact.kategoria or 'Ogólne' }}</span>
+        <h3>{{ fact.tytul }}</h3>
+        <p>{{ fact.tresc[:150] }}...</p>
+    </div>
+    {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function getRandomFact() { 
+        fetch('/api/random-fact').then(r => r.json()).then(f => {
+            if(f.id) location.reload();
+        }); 
+    }
+</script>
+{% endblock %}
