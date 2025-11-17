@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% block title %}Profil - FactsHub{% endblock %}
+
+{% block head_extra %}
+<style>
+    .profile-header { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); margin-bottom: 2rem; }
+    .profile-header h1 { color: #667eea; margin-bottom: 1rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
+    .stat-card { background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 1.5rem; border-radius: 15px; text-align: center; }
+    .stat-card h3 { font-size: 2rem; }
+    h2 { color: white; margin-top: 2rem; margin-bottom: 1rem; }
+    .fact-card { background: white; border-radius: 15px; padding: 1.5rem; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin-bottom: 1rem; }
+    .fact-card h3 { color: #667eea; }
+    .fact-status { display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; margin-top: 0.5rem; }
+    .status-opublikowany { background: #d4edda; color: #155724; }
+    .status-oczekujacy { background: #fff3cd; color: #856404; }
+    .status-odrzucony { background: #f8d7da; color: #721c24; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="profile-header">
+        <h1>👤 {{ user.username }}</h1>
+        <p>Email: {{ user.email }}</p>
+        <p>Członek od: {{ user.data_rejestracji.strftime('%d.%m.%Y') }}</p>
+        <div class="stats">
+            <div class="stat-card"><h3>{{ facts|length }}</h3><p>Wysłane Fakty</p></div>
+            <div class="stat-card"><h3>{{ facts|selectattr('status', 'equalto', 'opublikowany')|list|length }}</h3><p>Zatwierdzone</p></div>
+        </div>
+    </div>
+    <h2>📚 Moje Fakty</h2>
+    {% if facts %}
+        {% for fact in facts %}
+        <div class="fact-card">
+            <h3>{{ fact.tytul }}</h3>
+            <p>{{ fact.tresc[:150] }}...</p>
+            <span class="fact-status status-{{ fact.status }}">{{ fact.status }}</span>
+            <div style="margin-top: 1rem; font-size: 0.9rem; color: #999;">📅 {{ fact.data_dodania.strftime('%d.%m.%Y') }} | 🏷️ {{ fact.kategoria or 'Ogólne' }}</div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; color: #999;">
+        <p>Nie wysłałeś jeszcze żadnych faktów.</p>
+    </div>
+    {% endif %}
+{% endblock %}

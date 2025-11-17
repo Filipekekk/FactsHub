@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Archiwum - FactsHub{% endblock %}
+
+{% block head_extra %}
+<style>
+    .search-filters { background: white; padding: 2rem; border-radius: 15px; margin-bottom: 2rem; display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end; }
+    .fact-card { background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin-bottom: 1.5rem; }
+    .fact-category { display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+    .fact-card h3 { color: #667eea; margin: 0.5rem 0; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <h1 style="color: white; margin-bottom: 2rem;">Archiwum Ciekawostek</h1>
+    <div class="search-filters">
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Kategoria</label>
+            <select id="categoryFilter">
+                <option value="">Wszystkie kategorie</option>
+                {% for cat in categories %}<option value="{{ cat.id }}">{{ cat.nazwa }}</option>{% endfor %}
+            </select>
+        </div>
+        <div>
+            <label style="display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600;">Sortowanie</label>
+            <select id="sortFilter">
+                <option value="newest">Najnowsze</option>
+                <option value="oldest">Najstarsze</option>
+            </select>
+        </div>
+        <button onclick="applyFilters()">Filtruj</button>
+    </div>
+    {% for fact in facts %}
+        <div class="fact-card" onclick="viewFactDetails({{ fact.id }})">
+            <span class="fact-category">{{ fact.kategoria or 'Ogólne' }}</span>
+            <h3>{{ fact.tytul }}</h3>
+            <p>{{ fact.tresc[:200] }}...</p>
+        </div>
+    {% endfor %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function applyFilters() {
+        const c = document.getElementById('categoryFilter').value;
+        const s = document.getElementById('sortFilter').value;
+        let u = '/archive?page=1';
+        if(c) u += '&category=' + c;
+        if(s) u += '&sort=' + s;
+        location.href = u;
+    }
+</script>
+{% endblock %}

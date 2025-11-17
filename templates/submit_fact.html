@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Dodaj Fakt - FactsHub{% endblock %}
+
+{% block head_extra %}
+<style>
+    .form-card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); }
+    h1 { color: white; margin-bottom: 2rem; }
+    .form-group textarea { min-height: 150px; }
+    .info { background: #e8f4f8; padding: 1rem; border-radius: 10px; border-left: 4px solid #667eea; margin-bottom: 1.5rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div style="max-width: 700px; margin: 0 auto;">
+        <h1>Dodaj Nowy Fakt</h1>
+        <div class="form-card">
+            <div class="info">💡 Twój fakt będzie opublikowany. Upewnij się, że jest dokładny!</div>
+            <div id="alerts-form"></div>
+            <form onsubmit="submitFact(event)">
+                <div class="form-group"><label>Tytuł Faktu *</label><input type="text" id="tytul" required></div>
+                <div class="form-group">
+                    <label>Kategoria *</label>
+                    <select id="kategoria" required>
+                        <option value="">Wybierz kategorię</option>
+                        {% for cat in categories %}<option value="{{ cat.id }}">{{ cat.nazwa }}</option>{% endfor %}
+                    </select>
+                </div>
+                <div class="form-group"><label>Treść Faktu *</label><textarea id="tresc" required></textarea></div>
+                <div class="form-group"><label>Źródło (URL)</label><input type="url" id="zrodlo"></div>
+                <button type="submit" class="btn-primary" style="width: 100%;">📤 Opublikuj Fakt</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function submitFact(e) {
+        e.preventDefault();
+        const f = new FormData();
+        f.append('tytul', document.getElementById('tytul').value);
+        f.append('kategoria_id', document.getElementById('kategoria').value);
+        f.append('tresc', document.getElementById('tresc').value);
+        f.append('zrodlo', document.getElementById('zrodlo').value);
+        fetch('/submit-fact', {method: 'POST', body: f}).then(r => r.json()).then(d => {
+            const a = document.createElement('div');
+            a.className = 'alert alert-' + (d.success ? 'success' : 'error');
+            a.textContent = d.success || d.error;
+            document.getElementById('alerts-form').innerHTML = ''; // Clear previous alerts
+            document.getElementById('alerts-form').appendChild(a);
+            if(d.success) {
+                document.querySelector('form').reset();
+                setTimeout(() => location.href = '/profile', 1500);
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% block title %}Panel Moderacji - FactsHub{% endblock %}
+
+{% block head_extra %}
+<style>
+    h1 { color: white; margin-bottom: 1rem; }
+    .header-info { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .pending-badge { background: #dc3545; color: white; padding: 0.5rem 1rem; border-radius: 20px; font-weight: 600; }
+    .fact-card { background: white; border-radius: 15px; padding: 2rem; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1); margin-bottom: 1.5rem; }
+    .fact-card h3 { color: #667eea; margin-bottom: 0.5rem; }
+    .fact-category { display: inline-block; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 0.3rem 0.8rem; border-radius: 15px; font-size: 0.8rem; font-weight: 600; }
+    .fact-content { color: #333; line-height: 1.6; margin: 1rem 0; }
+    .fact-author { background: #f9f9f9; padding: 1rem; border-radius: 10px; margin: 1rem 0; }
+    .actions { display: flex; gap: 1rem; margin-top: 1.5rem; }
+    .btn-approve { background: #28a745; color: white; }
+    .btn-approve:hover { background: #218838; }
+    .btn-reject { background: #dc3545; color: white; }
+    .btn-reject:hover { background: #c82333; }
+    .empty-state { background: white; border-radius: 15px; padding: 3rem; text-align: center; color: #999; }
+</style>
+{% endblock %}
+
+{% block content %}
+    <div class="header-info">
+        <h1>⚙️ Panel Moderacji</h1>
+        {% if pending_count > 0 %}<span class="pending-badge">🔔 {{ pending_count }} oczekujących</span>{% endif %}
+    </div>
+    <div id="alerts-admin"></div>
+    {% if pending_facts %}
+        {% for fact in pending_facts %}
+        <div class="fact-card" id="fact-card-{{ fact.id }}">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <h3>{{ fact.tytul }}</h3>
+                    <span class="fact-category">{{ fact.kategoria or 'Ogólne' }}</span>
+                </div>
+                <span style="background: #fff3cd; padding: 0.5rem 1rem; border-radius: 15px; font-size: 0.85rem; font-weight: 600;">{{ fact.status }}</span>
+            </div>
+            <p style="font-size: 0.9rem; color: #999;">📅 {{ fact.data_dodania.strftime('%d.%m.%Y %H:%M') }}</p>
+            <div class="fact-content">{{ fact.tresc }}</div>
+            {% if fact.zrodlo %}<p><strong>Źródło:</strong> <a href="{{ fact.zrodlo }}" target="_blank">{{ fact.zrodlo }}</a></p>{% endif %}
+            <div class="fact-author"><strong>Autor:</strong> {{ fact.autor or 'Anonimowy' }}</div>
+            <div class="actions">
+                <button class="btn-approve" onclick="approveFact({{ fact.id }})">✅ Zatwierdź</button>
+                <button class="btn-reject" onclick="rejectFact({{ fact.id }})">❌ Odrzuć</button>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="empty-state">
+        <h2 style="color: #667eea; margin-bottom: 1rem;">✨ Brak faktów do moderacji</h2>
+        <p>Wszystkie zgłoszenia zostały przefiltrowane!</p>
+    </div>
+    {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function approveFact(id) {
+        if(confirm('Zatwierdź ten fakt?')) {
+            fetch('/api/approve-fact/' + id, {method: 'POST'}).then(r => r.json()).then(d => {
+                const card = document.getElementById('fact-card-' + id);
+                if (card) card.style.display = 'none';
+                showAlert(d.success, 'success');
+                setTimeout(() => location.reload(), 1000); // Reload to update pending count
+            });
+        }
+    }
+    function rejectFact(id) {
+        if(confirm('Odrzuć ten fakt?')) {
+            fetch('/api/reject-fact/' + id, {method: 'POST'}).then(r => r.json()).then(d => {
+                const card = document.getElementById('fact-card-' + id);
+                if (card) card.style.display = 'none';
+                showAlert(d.success, 'success');
+                setTimeout(() => location.reload(), 1000);
+            });
+        }
+    }
+</script>
+{% endblock %}
