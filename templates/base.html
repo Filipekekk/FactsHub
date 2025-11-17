@@ -6,7 +6,13 @@
     <title>{% block title %}FactsHub{% endblock %}</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #d1f2eb; background-image: none; min-height: 100vh;}
+        body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #d1f2eb !important;       /* Kolor z wykrzyknikiem */
+    background-image: none !important;    /* Wywalenie gradientu siłą */
+    background-color: #d1f2eb !important; /* Podwójne zabezpieczenie */
+    min-height: 100vh;
+}
         header { background: rgba(255, 255, 255, 0.95); padding: 1rem 2rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 100; }
         header nav { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-size: 1.8rem; font-weight: bold; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
@@ -139,6 +145,10 @@
         document.querySelectorAll('.modal').forEach(m => {m.addEventListener('click', (e) => {if(e.target === m) m.classList.remove('active');});});
     </script>
     {% block scripts %}{% endblock %}
+    <h1 style="background: red; color: white; text-align: center; padding: 20px;">
+    CZY WIDZISZ TEN NAPIS?
+</h1>
 </body>
 </html>
+
 
