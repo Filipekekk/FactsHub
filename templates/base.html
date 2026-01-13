@@ -4,47 +4,119 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}FactsHub{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --bg: #f8fafc;
+            --text: #1e293b;
+            --glass: rgba(255, 255, 255, 0.9);
+            --shadow: 0 10px 30px -10px rgba(0,0,0,0.1);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
-        header { background: rgba(255, 255, 255, 0.95); padding: 1rem 2rem; box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); position: sticky; top: 0; z-index: 100; }
+        body { 
+            font-family: 'Outfit', sans-serif; 
+            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%); 
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* Nowoczesny Header */
+        header { 
+            background: var(--glass); 
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem; 
+            position: sticky; top: 0; z-index: 100; 
+            border-bottom: 1px solid rgba(255,255,255,0.5);
+        }
         header nav { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 1.8rem; font-weight: bold; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-decoration: none; }
-        .nav-links { display: flex; gap: 2rem; align-items: center; }
-        .nav-links a { text-decoration: none; color: #667eea; font-weight: 500; }
-        button { padding: 0.7rem 1.5rem; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; }
-        .btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-        .btn-secondary { background: white; color: #667eea; border: 2px solid #667eea; }
-        .container { max-width: 1200px; margin: 3rem auto; padding: 0 2rem; }
-        .alert { padding: 1rem; border-radius: 10px; margin-bottom: 1rem; }
-        .alert-success { background: #d4edda; color: #155724; }
-        .alert-error { background: #f8d7da; color: #721c24; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .logo { 
+            font-size: 1.8rem; font-weight: 800; 
+            background: linear-gradient(to right, var(--primary), var(--secondary));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+            text-decoration: none; 
+        }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .nav-links a { text-decoration: none; color: #475569; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--primary); }
+
+        /* Przyciski */
+        button, .btn { 
+            padding: 0.6rem 1.2rem; border: none; border-radius: 12px; 
+            cursor: pointer; font-weight: 600; font-family: inherit; transition: all 0.2s;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--secondary)); 
+            color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4); }
+        .btn-secondary { background: white; color: var(--primary); border: 2px solid #e2e8f0; }
+
+        .container { max-width: 1000px; margin: 2rem auto; padding: 0 1.5rem; }
+
+        /* Komentarze i Reakcje */
+        .comment-node { margin-top: 1rem; }
+        .comment-card {
+            background: white; border-radius: 16px; padding: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #f1f5f9;
+            position: relative;
+        }
+        .comment-replies { 
+            margin-left: 2rem; 
+            border-left: 2px solid #e2e8f0; 
+            padding-left: 1rem; 
+        }
+        .reaction-bar { display: flex; gap: 0.5rem; margin-top: 0.5rem; align-items: center; }
+        .reaction-btn {
+            background: #f1f5f9; padding: 0.3rem 0.6rem; border-radius: 20px; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 4px; color: #64748b;
+        }
+        .reaction-btn:hover { background: #e2e8f0; }
+        .reaction-btn.active { background: #e0e7ff; color: var(--primary); border: 1px solid var(--primary); }
+        
+        .reply-btn { font-size: 0.85rem; color: #94a3b8; background: none; margin-left: auto; }
+        .reply-btn:hover { color: var(--primary); text-decoration: underline; }
+
+        /* Obrazki w komentarzach */
+        .comment-img { 
+            max-width: 100%; max-height: 300px; border-radius: 12px; margin-top: 0.5rem; 
+            display: block; object-fit: cover; cursor: pointer;
+        }
+        
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 1000; align-items: center; justify-content: center; }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 20px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #333; font-weight: 600; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.8rem; border: 2px solid #e0e0e0; border-radius: 10px; font-family: inherit; }
+        .modal-content { 
+            background: white; border-radius: 24px; padding: 2rem; 
+            width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; 
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        
+        /* Formularze */
+        .input-box { width: 100%; padding: 0.8rem; border: 2px solid #e2e8f0; border-radius: 12px; margin-bottom: 0.5rem; font-family: inherit; }
+        .input-box:focus { border-color: var(--primary); outline: none; }
     </style>
     {% block head_extra %}{% endblock %}
 </head>
 <body>
     <header>
         <nav>
-            <a href="/" class="logo">📚 FactsHub</a>
+            <a href="/" class="logo">🧬 FactsHub</a>
             <div class="nav-links">
-                <a href="/">Strona Główna</a>
+                <a href="/">Home</a>
                 <a href="/archive">Archiwum</a>
                 {% if current_user %}
-                    <a href="/submit-fact">Dodaj Fakt</a>
+                    <a href="/submit-fact">Dodaj</a>
                     <a href="/profile">Profil</a>
                     {% if session.get('rola') in ['admin', 'moderator'] %}
-                        <a href="/admin">Panel Moderacji</a>
+                        <a href="/admin" style="color: #ef4444;">Panel</a>
                     {% endif %}
                     <a href="/logout">Wyloguj</a>
                 {% else %}
-                    <button class="btn-secondary" onclick="showAuthModal('login')">Zaloguj</button>
-                    <button class="btn-primary" onclick="showAuthModal('register')">Rejestruj</button>
+                    <button class="btn-secondary" onclick="showAuthModal('login')">Logowanie</button>
+                    <button class="btn-primary" onclick="showAuthModal('register')">Rejestracja</button>
                 {% endif %}
             </div>
         </nav>
@@ -57,23 +129,24 @@
 
     {% if not current_user %}
     <div id="authModal" class="modal">
-        <div class="modal-content">
-            <span style="float: right; font-size: 2rem; cursor: pointer; color: #999;" onclick="closeAuthModal()">&times;</span>
-            <div id="loginForm" style="display: none;">
-                <h2>Zaloguj się</h2>
-                <form onsubmit="login(event)">
-                    <div class="form-group"><label>Email</label><input type="email" id="loginEmail" required></div>
-                    <div class="form-group"><label>Hasło</label><input type="password" id="loginPassword" required></div>
-                    <button type="submit" class="btn-primary" style="width: 100%;">Zaloguj</button>
+        <div class="modal-content" style="max-width: 400px;">
+            <span style="float: right; cursor: pointer; font-size: 1.5rem;" onclick="closeAuthModal()">✕</span>
+            <div id="loginForm">
+                <h2>Witaj ponownie! 👋</h2>
+                <form onsubmit="login(event)" style="margin-top: 1rem;">
+                    <input type="email" id="loginEmail" class="input-box" placeholder="Email" required>
+                    <input type="password" id="loginPassword" class="input-box" placeholder="Hasło" required>
+                    <button type="submit" class="btn-primary" style="width: 100%;">Zaloguj się</button>
                 </form>
+                <p style="margin-top:1rem; font-size:0.9rem;">Nie masz konta? <a href="#" onclick="showAuthModal('register')">Zarejestruj się</a></p>
             </div>
-            <div id="registerForm" style="display: none;">
-                <h2>Rejestracja</h2>
-                <form onsubmit="register(event)">
-                    <div class="form-group"><label>Nazwa użytkownika</label><input type="text" id="regUsername" required></div>
-                    <div class="form-group"><label>Email</label><input type="email" id="regEmail" required></div>
-                    <div class="form-group"><label>Hasło</label><input type="password" id="regPassword" required></div>
-                    <button type="submit" class="btn-primary" style="width: 100%;">Zarejestruj</button>
+            <div id="registerForm" style="display:none;">
+                <h2>Dołącz do nas! 🚀</h2>
+                <form onsubmit="register(event)" style="margin-top: 1rem;">
+                    <input type="text" id="regUsername" class="input-box" placeholder="Nazwa użytkownika" required>
+                    <input type="email" id="regEmail" class="input-box" placeholder="Email" required>
+                    <input type="password" id="regPassword" class="input-box" placeholder="Hasło" required>
+                    <button type="submit" class="btn-primary" style="width: 100%;">Utwórz konto</button>
                 </form>
             </div>
         </div>
@@ -82,62 +155,199 @@
 
     <div id="factModal" class="modal">
         <div class="modal-content">
-            <span style="float: right; font-size: 2rem; cursor: pointer; color: #999;" onclick="closeFactModal()">&times;</span>
+            <span style="float: right; cursor: pointer; font-size: 1.5rem;" onclick="closeFactModal()">✕</span>
             <div id="factDetails"></div>
         </div>
     </div>
 
     <script>
+        // --- 1. FUNKCJE POMOCNICZE ---
+        function escapeHtml(text) {
+            if (!text) return "";
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
         function showAuthModal(type) {
             document.getElementById('authModal').classList.add('active');
             document.getElementById('loginForm').style.display = type === 'login' ? 'block' : 'none';
             document.getElementById('registerForm').style.display = type === 'register' ? 'block' : 'none';
         }
         function closeAuthModal() { document.getElementById('authModal').classList.remove('active'); }
-        function login(e) {
-            e.preventDefault();
-            fetch('/login', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value})})
-            .then(r => r.json()).then(d => {if(d.success){showAlert(d.success, 'success'); setTimeout(() => location.reload(), 1000);}else{showAlert(d.error, 'error');}});
+        
+        // --- 2. LOGIKA KOMENTARZY (Drzewo) ---
+        
+        // Funkcja budująca pojedynczy węzeł komentarza
+        function buildCommentHTML(c, childrenMap) {
+            const replies = childrenMap[c.id] || [];
+            
+            // Czy zdjęcie istnieje?
+            const imgHtml = c.image_url ? `<img src="${escapeHtml(c.image_url)}" class="comment-img" onclick="window.open(this.src)">` : '';
+            
+            // Przyciski reakcji
+            const reactions = ['like', 'love', 'haha', 'wow', 'sad'];
+            const icons = {'like': '👍', 'love': '❤️', 'haha': '😂', 'wow': '😮', 'sad': '😢'};
+            
+            let reactionsHtml = '';
+            reactions.forEach(type => {
+                const isActive = c.my_reaction === type ? 'active' : '';
+                reactionsHtml += `
+                    <button class="reaction-btn ${isActive}" onclick="toggleReaction(${c.id}, '${type}', ${c.fact_id})">
+                        ${icons[type]}
+                    </button>`;
+            });
+            
+            // Licznik
+            const countHtml = c.total_reactions > 0 ? `<span style="font-size: 0.8rem; color: #64748b; margin-left: 5px;">${c.total_reactions} reakcji</span>` : '';
+
+            // Rekurencyjne budowanie odpowiedzi
+            let repliesHtml = '';
+            if (replies.length > 0) {
+                repliesHtml = `<div class="comment-replies">` + 
+                              replies.map(r => buildCommentHTML(r, childrenMap)).join('') + 
+                              `</div>`;
+            }
+
+            return `
+                <div class="comment-node">
+                    <div class="comment-card">
+                        <div style="display: flex; justify-content: space-between;">
+                            <strong style="color: var(--primary);">${escapeHtml(c.username || 'Gość')}</strong>
+                            <small style="color: #94a3b8;">${new Date(c.data_dodania).toLocaleDateString()}</small>
+                        </div>
+                        <div style="margin-top: 0.5rem; line-height: 1.5;">${escapeHtml(c.tresc)}</div>
+                        ${imgHtml}
+                        <div class="reaction-bar">
+                            ${reactionsHtml}
+                            ${countHtml}
+                            <button class="reply-btn" onclick="setupReply(${c.id}, '${escapeHtml(c.username)}')">Odpowiedz</button>
+                        </div>
+                    </div>
+                    ${repliesHtml}
+                </div>
+            `;
         }
-        function register(e) {
-            e.preventDefault();
-            fetch('/register', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({username: document.getElementById('regUsername').value, email: document.getElementById('regEmail').value, password: document.getElementById('regPassword').value})})
-            .then(r => r.json()).then(d => {if(d.success){showAlert(d.success, 'success'); showAuthModal('login');}else{showAlert(d.error, 'error');}});
-        }
-        function showAlert(m, t) {
-            const d = document.createElement('div');
-            d.className = 'alert alert-' + t;
-            d.textContent = m;
-            document.getElementById('alerts').appendChild(d);
-            setTimeout(() => d.remove(), 3000);
-        }
+
+        // --- 3. GŁÓWNA FUNKCJA WYŚWIETLANIA ---
         function viewFactDetails(id) {
             fetch('/api/fact/' + id).then(r => r.json()).then(d => {
-                const f = d.fact; const c = d.comments || [];
-                let h = `<h2>${f.tytul}</h2><span class="fact-category">${f.kategoria || 'Ogólne'}</span><p style="margin-top: 1rem; color: #999;">Autor: ${f.autor || 'Anonimowy'}</p>`;
-                h += `<p style="margin: 1.5rem 0; font-size: 1.1rem;">${f.tresc}</p>`;
-                if(f.zrodlo) h += `<p><strong>Źródło:</strong> <a href="${f.zrodlo}" target="_blank">Link</a></p>`;
-                h += `<div class="comments-section"><h3>Komentarze (${c.length})</h3><form onsubmit="addComment(event, ${f.id})"><div class="form-group"><textarea id="commentText" placeholder="Napisz komentarz..." required style="min-height: 80px;"></textarea></div><button type="submit" class="btn-primary">Dodaj Komentarz</button></form><div style="margin-top: 2rem;">`;
-                c.forEach(cm => {
-                    h += `<div class="comment"><div style="font-weight: 600; color: #667eea;">${cm.pseudonim_goscia || cm.username || 'Gość'}</div><div style="color: #333; line-height: 1.6; margin: 0.5rem 0;">${cm.tresc}</div><div style="font-size: 0.85rem; color: #999;">${new Date(cm.data_dodania).toLocaleDateString('pl-PL')}</div><button style="margin-top: 0.5rem; padding: 0.4rem 0.8rem; background: #e0e0e0;" onclick="likeComment(${cm.id})">👍 ${cm.likes || 0}</button></div>`;
+                const f = d.fact; 
+                const allComments = d.comments || [];
+
+                // 1. Organizujemy komentarze w drzewo (Mapa: ID Rodzica -> Lista Dzieci)
+                const childrenMap = {};
+                const rootComments = [];
+                
+                allComments.forEach(c => {
+                    if (c.parent_comment_id) {
+                        if (!childrenMap[c.parent_comment_id]) childrenMap[c.parent_comment_id] = [];
+                        childrenMap[c.parent_comment_id].push(c);
+                    } else {
+                        rootComments.push(c);
+                    }
                 });
-                h += '</div></div>';
+
+                // 2. Budujemy HTML faktu
+                let h = `
+                    <span style="background: #e0e7ff; color: var(--primary); padding: 0.2rem 0.8rem; border-radius: 20px; font-size: 0.8rem;">${escapeHtml(f.kategoria)}</span>
+                    <h2 style="margin-top: 0.5rem; font-size: 2rem;">${escapeHtml(f.tytul)}</h2>
+                    <p style="margin-top: 1rem; font-size: 1.1rem; line-height: 1.6;">${escapeHtml(f.tresc)}</p>
+                    <div style="border-top: 1px solid #e2e8f0; margin: 2rem 0;"></div>
+                    
+                    <h3>Dyskusja (${allComments.length})</h3>
+                    
+                    <div style="background: #f8fafc; padding: 1rem; border-radius: 12px; margin-bottom: 2rem;">
+                        <form onsubmit="submitComment(event, ${f.id})">
+                            <input type="hidden" id="replyParentId" value="">
+                            <div id="replyBadge" style="display:none; background: #e0e7ff; color: var(--primary); padding: 5px 10px; border-radius: 5px; margin-bottom: 5px; font-size: 0.8rem;">
+                                Odpowiedź do: <span id="replyUser"></span> <span style="cursor:pointer; float:right;" onclick="cancelReply()">✕</span>
+                            </div>
+                            <textarea id="commentText" class="input-box" placeholder="Napisz komentarz..." rows="2" required></textarea>
+                            <input type="text" id="commentImage" class="input-box" placeholder="Link do zdjęcia (opcjonalnie) https://..." style="font-size: 0.8rem;">
+                            <button type="submit" class="btn-primary">Wyślij</button>
+                        </form>
+                    </div>
+
+                    <div>
+                        ${rootComments.map(c => buildCommentHTML(c, childrenMap)).join('')}
+                    </div>
+                `;
+
                 document.getElementById('factDetails').innerHTML = h;
                 document.getElementById('factModal').classList.add('active');
             });
         }
-        function closeFactModal() { document.getElementById('factModal').classList.remove('active'); }
-        function addComment(e, fid) {
+
+        // --- 4. AKCJE UŻYTKOWNIKA ---
+
+        function setupReply(parentId, username) {
+            document.getElementById('replyParentId').value = parentId;
+            document.getElementById('replyUser').textContent = username;
+            document.getElementById('replyBadge').style.display = 'block';
+            document.getElementById('commentText').focus();
+            document.getElementById('commentText').placeholder = "Napisz odpowiedź...";
+        }
+
+        function cancelReply() {
+            document.getElementById('replyParentId').value = "";
+            document.getElementById('replyBadge').style.display = 'none';
+            document.getElementById('commentText').placeholder = "Napisz komentarz...";
+        }
+
+        function submitComment(e, factId) {
             e.preventDefault();
-            fetch('/api/comment', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({fact_id: fid, tresc: document.getElementById('commentText').value})})
-            .then(r => r.json()).then(d => {showAlert(d.success || d.error, d.success ? 'success' : 'error'); if(d.success){setTimeout(() => viewFactDetails(fid), 500);}});
+            const parentId = document.getElementById('replyParentId').value || null;
+            const body = {
+                fact_id: factId,
+                tresc: document.getElementById('commentText').value,
+                image_url: document.getElementById('commentImage').value,
+                parent_id: parentId
+            };
+
+            fetch('/api/comment', {
+                method: 'POST', 
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(body)
+            }).then(r => r.json()).then(d => {
+                if(d.success) {
+                    viewFactDetails(factId); // Odśwież widok
+                } else {
+                    alert(d.error);
+                }
+            });
         }
-        function likeComment(cid) {
-            fetch('/api/reaction', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({comment_id: cid})})
-            .then(r => r.json()).then(d => showAlert(d.success || d.error, d.success ? 'success' : 'error'));
+
+        function toggleReaction(commentId, type, factId) {
+            fetch('/api/reaction', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({comment_id: commentId, typ: type})
+            }).then(r => r.json()).then(d => {
+                if(d.success) {
+                    viewFactDetails(factId); // Odśwież widok żeby zaktualizować kolory i liczniki
+                } else {
+                    // Jeśli błąd to pewnie brak logowania
+                    if(d.error === 'Musisz być zalogowany') showAuthModal('login');
+                    else alert(d.error);
+                }
+            });
         }
+
+        function closeFactModal() { document.getElementById('factModal').classList.remove('active'); }
+        function login(e) {
+            e.preventDefault();
+            fetch('/login', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({email: document.getElementById('loginEmail').value, password: document.getElementById('loginPassword').value})})
+            .then(r => r.json()).then(d => {if(d.success){location.reload();}else{alert(d.error);}});
+        }
+        function register(e) {
+            e.preventDefault();
+            fetch('/register', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({username: document.getElementById('regUsername').value, email: document.getElementById('regEmail').value, password: document.getElementById('regPassword').value})})
+            .then(r => r.json()).then(d => {if(d.success){alert('Konto utworzone!'); showAuthModal('login');}else{alert(d.error);}});
+        }
+
+        // Zamykanie modala na kliknięcie tła
         document.querySelectorAll('.modal').forEach(m => {m.addEventListener('click', (e) => {if(e.target === m) m.classList.remove('active');});});
     </script>
     {% block scripts %}{% endblock %}
 </body>
+
 </html>

@@ -1,0 +1,22 @@
+name: DAST Security Scan (OWASP ZAP)
+
+on:
+  workflow_dispatch:
+    
+permissions:
+  contents: read
+  issues: write
+  
+jobs:
+  zap_scan:
+    runs-on: ubuntu-latest
+    name: Scan Live Application
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.14.0
+        with:
+          target: 'https://factshub.pl'
+          token: ${{ secrets.GITHUB_TOKEN }}
